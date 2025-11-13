@@ -1,3 +1,4 @@
+# FastAPI and Core Dependencies
 annotated-doc==0.0.3
 annotated-types==0.7.0
 anyio==4.11.0
@@ -43,3 +44,38 @@ uvicorn==0.38.0
 uvloop==0.22.1
 watchfiles==1.1.1
 websockets==15.0.1
+
+# Azure Blob Storage
+azure-storage-blob==12.23.1
+azure-identity==1.19.0
+
+# Document Parsing - LlamaParse
+llama-parse==0.5.17
+llama-index==0.12.10
+
+# LangChain
+langchain==0.3.14
+langchain-community==0.3.14
+langchain-core==0.3.28
+langchain-google-genai==2.0.8
+
+# Google Generative AI for Embeddings
+google-generativeai==0.8.3
+
+# Vector Database - Pinecone
+pinecone-client==5.0.1
+
+# Graph Database - Neo4j
+neo4j==5.27.0
+
+# Additional ML/NLP Libraries
+numpy==1.26.4
+pillow==11.1.0
+pypdf==5.1.0
+
+# Text Processing
+tiktoken==0.8.0
+unstructured==0.16.14
+
+# OpenAI (for compatibility with some LangChain components)
+openai==1.59.7
