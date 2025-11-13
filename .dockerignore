@@ -1,11 +1,16 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
 # Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
-venv/
 env/
+venv/
 ENV/
 build/
 develop-eggs/
@@ -23,10 +28,10 @@ wheels/
 .installed.cfg
 *.egg
 
-# Environment
-.env
-.env.local
-.env.*.local
+# Virtual environments
+venv/
+ENV/
+env/
 
 # IDEs
 .vscode/
@@ -34,7 +39,6 @@ wheels/
 *.swp
 *.swo
 *~
-.DS_Store
 
 # Testing
 .pytest_cache/
@@ -47,15 +51,25 @@ htmlcov/
 *.log
 logs/
 
-# Docker
-docker-compose.override.yml
-
-# Temporary files
-*.tmp
-*.bak
-*.swp
-*~.nib
-
 # OS
 .DS_Store
 Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Documentation
+README.md
+docs/
+*.md
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore
+
+# CI/CD
+.github/
+.gitlab-ci.yml
