@@ -1,12 +1,10 @@
 """Graph RAG API endpoints."""
 import logging
-from fastapi import APIRouter, HTTPException, BackgroundTasks
+from fastapi import APIRouter, HTTPException
 from datetime import datetime
 from typing import Dict, Any
 
 from app.models.graph_rag import (
-    DocumentIngestRequest,
-    DocumentIngestResponse,
     QueryRequest,
     QueryResponse,
     HybridSearchRequest,
@@ -14,7 +12,6 @@ from app.models.graph_rag import (
     HealthCheckResponse,
     ErrorResponse
 )
-from app.services.graph_rag_ingestion import get_ingestion_pipeline
 from app.services.graph_rag_query import get_query_engine
 from app.services.vector_store import get_vector_store_service
 from app.services.graph_store import get_graph_store_service
@@ -22,55 +19,6 @@ from app.services.graph_store import get_graph_store_service
 logger = logging.getLogger(__name__)
 
 router = APIRouter()
-
-
-@router.post(
-    "/ingest",
-    response_model=DocumentIngestResponse,
-    status_code=200,
-    summary="Ingest a document into Graph RAG system",
-    description="""
-    Ingest a document from Azure Blob Storage into the Graph RAG system.
-
-    This endpoint:
-    1. Downloads the document from Azure Blob Storage
-    2. Parses it using LlamaParse (with multi-modal support)
-    3. Extracts entities and relationships
-    4. Generates embeddings using Gemini (768 dimensions)
-    5. Stores vectors in Pinecone
-    6. Builds knowledge graph in Neo4j
-    """,
-    responses={
-        200: {"model": DocumentIngestResponse},
-        400: {"model": ErrorResponse},
-        500: {"model": ErrorResponse}
-    }
-)
-async def ingest_document(request: DocumentIngestRequest):
-    """Ingest a document into the Graph RAG system."""
-    try:
-        logger.info(f"Received ingestion request for: {request.file_url}")
-
-        # Get ingestion pipeline
-        pipeline = get_ingestion_pipeline()
-
-        # Ingest document
-        result = await pipeline.ingest_document(
-            file_url=request.file_url,
-            metadata=request.metadata
-        )
-
-        return DocumentIngestResponse(**result)
-
-    except ValueError as e:
-        logger.error(f"Validation error during ingestion: {e}")
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        logger.error(f"Error during ingestion: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to ingest document: {str(e)}"
-        )
 
 
 @router.post(

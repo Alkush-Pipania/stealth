@@ -1,16 +1,14 @@
 # Graph RAG API
 
-A powerful Graph-based Retrieval Augmented Generation (RAG) API that combines semantic search with knowledge graph capabilities for enhanced document understanding and querying.
+A powerful Graph-based Retrieval Augmented Generation (RAG) query API that combines semantic search with knowledge graph capabilities for enhanced document querying and retrieval.
 
 ## Features
 
-- **Multi-Modal Document Processing**: Extract text and images from PDFs using LlamaParse
 - **Semantic Search**: 768-dimensional embeddings using Google Gemini with cosine similarity
-- **Knowledge Graph**: Build and query knowledge graphs with Neo4j
+- **Knowledge Graph**: Query knowledge graphs with Neo4j for contextual understanding
 - **Vector Store**: Fast similarity search using Pinecone
-- **Azure Blob Storage**: Seamless document retrieval from Azure cloud storage
 - **Hybrid Search**: Combine vector similarity with graph traversal for superior results
-- **Real-Time WebSocket API**: Streaming document ingestion and query execution with live progress updates
+- **Real-Time WebSocket API**: Streaming query execution with live results
 - **Topic Subscriptions**: Event-driven architecture with pub/sub capabilities
 
 ## Architecture
@@ -135,45 +133,6 @@ NEO4J_PASSWORD=your_neo4j_password
 
 ## API Endpoints
 
-### Document Ingestion
-
-**POST** `/api/v1/graph-rag/ingest`
-
-Ingest a document from Azure Blob Storage into the Graph RAG system.
-
-```bash
-curl -X POST "http://localhost:8000/api/v1/graph-rag/ingest" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "file_url": "https://mystorageaccount.blob.core.windows.net/documents/sample.pdf",
-    "metadata": {
-      "author": "John Doe",
-      "category": "research"
-    }
-  }'
-```
-
-**Response:**
-```json
-{
-  "status": "success",
-  "document_id": "abc123...",
-  "file_name": "sample.pdf",
-  "processing_time_seconds": 45.2,
-  "chunks_created": 150,
-  "images_extracted": 5,
-  "entities_extracted": 87,
-  "relationships_created": 234,
-  "vectors_stored": 155,
-  "graph_stats": {
-    "document_nodes": 1,
-    "chunk_nodes": 150,
-    "entity_nodes": 87,
-    "relationships": 234
-  }
-}
-```
-
 ### Query
 
 **POST** `/api/v1/graph-rag/query`
@@ -245,7 +204,7 @@ curl -X GET "http://localhost:8000/api/v1/graph-rag/stats"
 
 ## WebSocket API
 
-For real-time streaming of document ingestion and query execution, use the WebSocket API.
+For real-time streaming of query execution, use the WebSocket API.
 
 ### Connection
 
@@ -255,31 +214,9 @@ const ws = new WebSocket('ws://localhost:8000/api/v1/ws?client_id=my-client');
 
 ### Features
 
-- **Streaming Ingestion**: Real-time progress updates during document processing
 - **Streaming Queries**: Results delivered as they arrive
 - **Topic Subscriptions**: Subscribe to specific event channels
 - **Bidirectional Communication**: Full duplex communication
-
-### Example: Streaming Ingestion
-
-```javascript
-// Send ingestion request
-ws.send(JSON.stringify({
-    type: 'ingest_request',
-    request_id: 'req-123',
-    file_url: 'https://storage.blob.core.windows.net/docs/sample.pdf',
-    metadata: {title: 'Sample Doc'},
-    stream_progress: true
-}));
-
-// Receive progress updates
-ws.onmessage = (event) => {
-    const msg = JSON.parse(event.data);
-    if (msg.type === 'ingestion_progress') {
-        console.log(`Progress: ${msg.progress}% - ${msg.stage}`);
-    }
-};
-```
 
 ### Example: Streaming Query
 

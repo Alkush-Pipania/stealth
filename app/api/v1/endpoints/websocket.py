@@ -8,14 +8,12 @@ from app.websocket.connection_manager import get_connection_manager
 from app.websocket.schemas import (
     WSMessageType,
     parse_client_message,
-    WSIngestRequest,
     WSQueryRequest,
     WSSubscribeMessage,
     WSUnsubscribeMessage,
     create_error_message
 )
 from app.websocket.handlers import (
-    handle_ingestion_request,
     handle_query_request,
     handle_subscribe,
     handle_unsubscribe,
@@ -37,7 +35,6 @@ async def websocket_endpoint(
     Main WebSocket endpoint for real-time communication.
 
     Supports:
-    - Document ingestion with progress streaming
     - Query execution with result streaming
     - Topic subscriptions
     - Bidirectional messaging
@@ -97,22 +94,7 @@ async def websocket_endpoint(
                 request_id = getattr(message, 'request_id', None)
 
                 # Route message to appropriate handler
-                if message.type == WSMessageType.INGEST_REQUEST:
-                    # Handle ingestion request
-                    ingest_msg: WSIngestRequest = message
-                    # Run in background to not block receiving messages
-                    import asyncio
-                    asyncio.create_task(
-                        handle_ingestion_request(
-                            connection_id=connection_id,
-                            file_url=ingest_msg.file_url,
-                            metadata=ingest_msg.metadata,
-                            stream_progress=ingest_msg.stream_progress,
-                            request_id=request_id
-                        )
-                    )
-
-                elif message.type == WSMessageType.QUERY_REQUEST:
+                if message.type == WSMessageType.QUERY_REQUEST:
                     # Handle query request
                     query_msg: WSQueryRequest = message
                     import asyncio
