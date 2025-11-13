@@ -48,8 +48,7 @@ async def value_error_handler(request, exc):
 # Include routers (THIS IS HOW YOU CONNECT ENDPOINTS!)
 app.include_router(
     api_router,                    # Your router object
-    prefix="/api/v1",              # URL prefix for all routes in this router
-    tags=["v1"]                    # OpenAPI tag
+    prefix="/api/v1",              # URL prefix for all routes in this router                  # OpenAPI tag
 )
 
 # Health check endpoint

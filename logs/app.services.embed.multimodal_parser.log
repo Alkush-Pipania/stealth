@@ -1,0 +1,2 @@
+2025-11-14 03:44:04,900 - app.services.embed.multimodal_parser - INFO - Parsing document: /var/folders/rj/5n7725ps40z8wn8p1kcy6ldw0000gn/T/tmpf4s3g5q6.pdf
+2025-11-14 03:45:38,418 - app.services.embed.multimodal_parser - INFO - Parsed 605 chunks from /var/folders/rj/5n7725ps40z8wn8p1kcy6ldw0000gn/T/tmpf4s3g5q6.pdf

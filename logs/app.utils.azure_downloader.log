@@ -1,0 +1,52 @@
+2025-11-14 03:31:34,558 - app.utils.azure_downloader - INFO - Downloading blob: 1755637453100-Rich-Dad-Poor-Dad-eBook.pdf from container: document
+2025-11-14 03:31:34,766 - app.utils.azure_downloader - ERROR - Error downloading from Azure: Server failed to authenticate the request. Make sure the value of Authorization header is formed correctly including the signature.
+RequestId:3c94745b-101e-000d-59e9-543609000000
+Time:2025-11-13T22:01:34.8649017Z
+ErrorCode:AuthenticationFailed
+authenticationerrordetail:The MAC signature found in the HTTP request 'uxAYTt553uc8tWM9yufAt6OfZJwWgDw6E0b+9owDfn0=' is not the same as any computed signature. Server used following string to sign: 'GET
+
+
+
+
+
+
+
+
+
+
+
+x-ms-client-request-id:51c39a5c-c0dc-11f0-90ca-1aff750a1cb9
+x-ms-date:Thu, 13 Nov 2025 22:01:34 GMT
+x-ms-range:bytes=0-33554431
+x-ms-version:2023-11-03
+/2alabs/document/1755637453100-Rich-Dad-Poor-Dad-eBook.pdf'.
+Content: <?xml version="1.0" encoding="utf-8"?><Error><Code>AuthenticationFailed</Code><Message>Server failed to authenticate the request. Make sure the value of Authorization header is formed correctly including the signature.
+RequestId:3c94745b-101e-000d-59e9-543609000000
+Time:2025-11-13T22:01:34.8649017Z</Message><AuthenticationErrorDetail>The MAC signature found in the HTTP request 'uxAYTt553uc8tWM9yufAt6OfZJwWgDw6E0b+9owDfn0=' is not the same as any computed signature. Server used following string to sign: 'GET
+
+
+
+
+
+
+
+
+
+
+
+x-ms-client-request-id:51c39a5c-c0dc-11f0-90ca-1aff750a1cb9
+x-ms-date:Thu, 13 Nov 2025 22:01:34 GMT
+x-ms-range:bytes=0-33554431
+x-ms-version:2023-11-03
+/2alabs/document/1755637453100-Rich-Dad-Poor-Dad-eBook.pdf'.</AuthenticationErrorDetail></Error>
+2025-11-14 03:38:28,719 - app.utils.azure_downloader - INFO - Downloading blob: 1755637453100-Rich-Dad-Poor-Dad-eBook.pdf from container: document
+2025-11-14 03:38:29,011 - app.utils.azure_downloader - ERROR - Error downloading from Azure: Server failed to authenticate the request. Make sure the value of Authorization header is formed correctly including the signature.
+RequestId:dcf1f50a-201e-004b-2eea-54028e000000
+Time:2025-11-13T22:08:29.0898555Z
+ErrorCode:AuthenticationFailed
+authenticationerrordetail:sr is mandatory. Cannot be empty
+Content: <?xml version="1.0" encoding="utf-8"?><Error><Code>AuthenticationFailed</Code><Message>Server failed to authenticate the request. Make sure the value of Authorization header is formed correctly including the signature.
+RequestId:dcf1f50a-201e-004b-2eea-54028e000000
+Time:2025-11-13T22:08:29.0898555Z</Message><AuthenticationErrorDetail>sr is mandatory. Cannot be empty</AuthenticationErrorDetail></Error>
+2025-11-14 03:44:04,035 - app.utils.azure_downloader - INFO - Downloading from URL: https://2alabs.blob.core.windows.net/document/1755637453100-Rich-Dad-Poor-Dad-eBook.pdf
+2025-11-14 03:44:04,898 - app.utils.azure_downloader - INFO - Successfully downloaded to: /var/folders/rj/5n7725ps40z8wn8p1kcy6ldw0000gn/T/tmpf4s3g5q6.pdf
