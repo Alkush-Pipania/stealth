@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph RAG WebSocket Client</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+        }
+
+        .status {
+            padding: 15px 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-indicator.connected {
+            background: #28a745;
+            box-shadow: 0 0 10px #28a745;
+        }
+
+        .status-indicator.disconnected {
+            background: #dc3545;
+        }
+
+        .controls {
+            padding: 30px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .control-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .control-section h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        textarea {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: transform 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .messages {
+            padding: 30px;
+            background: #f8f9fa;
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .message {
+            background: white;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 4px solid #667eea;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .message.error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .message.success {
+            border-left-color: #28a745;
+            background: #f0fff4;
+        }
+
+        .message.progress {
+            border-left-color: #ffc107;
+            background: #fffbf0;
+        }
+
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .message-type {
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .message-time {
+            font-size: 12px;
+            color: #999;
+        }
+
+        .message-content {
+            color: #666;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Graph RAG WebSocket Client</h1>
+            <p>Real-time Document Ingestion & Query Streaming</p>
+        </div>
+
+        <div class="status">
+            <div>
+                <span class="status-indicator" id="statusIndicator"></span>
+                <span id="statusText">Disconnected</span>
+            </div>
+            <div>
+                <button id="connectBtn" onclick="connect()">Connect</button>
+                <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="control-section">
+                <h3>📄 Document Ingestion</h3>
+                <div class="form-group">
+                    <label>Document URL</label>
+                    <input type="text" id="fileUrl"
+                           placeholder="https://storage.blob.core.windows.net/docs/file.pdf"
+                           value="https://yourstorage.blob.core.windows.net/documents/sample.pdf">
+                </div>
+                <div class="form-group">
+                    <label>Metadata (JSON)</label>
+                    <textarea id="metadata" placeholder='{"title": "My Doc", "author": "John"}'>{
+  "title": "Sample Document",
+  "category": "test"
+}</textarea>
+                </div>
+                <button onclick="ingestDocument()" id="ingestBtn" disabled>
+                    Ingest Document
+                </button>
+            </div>
+
+            <div class="control-section">
+                <h3>🔍 Query Documents</h3>
+                <div class="form-group">
+                    <label>Query</label>
+                    <input type="text" id="query"
+                           placeholder="What are the main conclusions?"
+                           value="What are the main conclusions?">
+                </div>
+                <div class="form-group">
+                    <label>Top K Results</label>
+                    <input type="number" id="topK" value="10" min="1" max="100">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="useGraph" checked>
+                        Use Graph Enhancement
+                    </label>
+                </div>
+                <button onclick="queryDocuments()" id="queryBtn" disabled>
+                    Execute Query
+                </button>
+            </div>
+        </div>
+
+        <div class="messages" id="messages">
+            <div class="message">
+                <div class="message-header">
+                    <span class="message-type">Welcome</span>
+                    <span class="message-time">Ready</span>
+                </div>
+                <div class="message-content">
+                    Click "Connect" to establish WebSocket connection.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let ws = null;
+        let isConnected = false;
+
+        function connect() {
+            const clientId = 'web-client-' + Math.random().toString(36).substr(2, 9);
+            const url = `ws://localhost:8000/api/v1/ws?client_id=${clientId}&client_name=WebClient`;
+
+            addMessage('info', 'Connecting', 'Establishing WebSocket connection...');
+
+            ws = new WebSocket(url);
+
+            ws.onopen = () => {
+                isConnected = true;
+                updateStatus(true);
+                addMessage('success', 'Connected', 'WebSocket connection established successfully!');
+            };
+
+            ws.onclose = () => {
+                isConnected = false;
+                updateStatus(false);
+                addMessage('error', 'Disconnected', 'WebSocket connection closed.');
+            };
+
+            ws.onerror = (error) => {
+                addMessage('error', 'Error', 'WebSocket error occurred.');
+                console.error('WebSocket error:', error);
+            };
+
+            ws.onmessage = (event) => {
+                const message = JSON.parse(event.data);
+                handleMessage(message);
+            };
+        }
+
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+
+        function updateStatus(connected) {
+            const statusIndicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            const ingestBtn = document.getElementById('ingestBtn');
+            const queryBtn = document.getElementById('queryBtn');
+
+            if (connected) {
+                statusIndicator.className = 'status-indicator connected';
+                statusText.textContent = 'Connected';
+                connectBtn.disabled = true;
+                disconnectBtn.disabled = false;
+                ingestBtn.disabled = false;
+                queryBtn.disabled = false;
+            } else {
+                statusIndicator.className = 'status-indicator disconnected';
+                statusText.textContent = 'Disconnected';
+                connectBtn.disabled = false;
+                disconnectBtn.disabled = true;
+                ingestBtn.disabled = true;
+                queryBtn.disabled = true;
+            }
+        }
+
+        function sendMessage(message) {
+            if (ws && isConnected) {
+                ws.send(JSON.stringify(message));
+            } else {
+                addMessage('error', 'Error', 'Not connected to server.');
+            }
+        }
+
+        function ingestDocument() {
+            const fileUrl = document.getElementById('fileUrl').value;
+            let metadata = {};
+
+            try {
+                metadata = JSON.parse(document.getElementById('metadata').value);
+            } catch (e) {
+                addMessage('error', 'Error', 'Invalid metadata JSON.');
+                return;
+            }
+
+            const requestId = 'req-' + Date.now();
+
+            sendMessage({
+                type: 'ingest_request',
+                request_id: requestId,
+                file_url: fileUrl,
+                metadata: metadata,
+                stream_progress: true
+            });
+
+            addMessage('info', 'Ingestion Started', `Requesting ingestion of: ${fileUrl}`);
+        }
+
+        function queryDocuments() {
+            const query = document.getElementById('query').value;
+            const topK = parseInt(document.getElementById('topK').value);
+            const useGraph = document.getElementById('useGraph').checked;
+            const requestId = 'req-' + Date.now();
+
+            sendMessage({
+                type: 'query_request',
+                request_id: requestId,
+                query: query,
+                top_k: topK,
+                use_graph: useGraph,
+                stream_results: true
+            });
+
+            addMessage('info', 'Query Started', `Executing query: "${query}"`);
+        }
+
+        function handleMessage(message) {
+            const type = message.type;
+
+            switch (type) {
+                case 'connected':
+                    // Already handled in onopen
+                    break;
+
+                case 'ingestion_started':
+                    addMessage('info', 'Ingestion Started',
+                              `Document: ${message.file_name}`);
+                    break;
+
+                case 'ingestion_progress':
+                    addProgressMessage(message);
+                    break;
+
+                case 'ingestion_completed':
+                    addMessage('success', 'Ingestion Complete',
+                              `Document: ${message.file_name}<br>` +
+                              `Chunks: ${message.chunks_created}, ` +
+                              `Images: ${message.images_extracted}, ` +
+                              `Entities: ${message.entities_extracted}`);
+                    break;
+
+                case 'ingestion_failed':
+                    addMessage('error', 'Ingestion Failed', message.error);
+                    break;
+
+                case 'query_started':
+                    addMessage('info', 'Query Started', `Query: "${message.query}"`);
+                    break;
+
+                case 'query_chunk':
+                    addQueryChunk(message);
+                    break;
+
+                case 'query_completed':
+                    addMessage('success', 'Query Complete',
+                              `Total results: ${message.total_results}<br>` +
+                              `Entities: ${message.num_entities}<br>` +
+                              `Graph enhanced: ${message.graph_enhanced}`);
+                    break;
+
+                case 'query_failed':
+                    addMessage('error', 'Query Failed', message.error);
+                    break;
+
+                case 'error':
+                    addMessage('error', 'Error', message.error);
+                    break;
+
+                case 'pong':
+                    // Heartbeat response
+                    break;
+
+                default:
+                    console.log('Unknown message type:', type, message);
+            }
+        }
+
+        function addMessage(type, title, content) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+
+            const time = new Date().toLocaleTimeString();
+
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-type">${title}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div class="message-content">${content}</div>
+            `;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addProgressMessage(message) {
+            const messagesDiv = document.getElementById('messages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message progress';
+
+            const time = new Date().toLocaleTimeString();
+            const progress = message.progress;
+
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-type">Progress: ${message.stage}</span>
+                    <span class="message-time">${time}</span>
+                </div>
+                <div class="message-content">
+                    ${message.message}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progress}%"></div>
+                    </div>
+                </div>
+            `;
+
+            messagesDiv.appendChild(messageDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function addQueryChunk(message) {
+            const result = message.result;
+            const content = `
+                <strong>Result ${message.chunk_index + 1}</strong><br>
+                Score: ${result.score?.toFixed(4)}<br>
+                ${result.text?.substring(0, 150)}...
+            `;
+
+            addMessage('info', 'Query Result', content);
+        }
+    </script>
+</body>
+</html>

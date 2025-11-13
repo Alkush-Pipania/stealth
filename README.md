@@ -10,6 +10,8 @@ A powerful Graph-based Retrieval Augmented Generation (RAG) API that combines se
 - **Vector Store**: Fast similarity search using Pinecone
 - **Azure Blob Storage**: Seamless document retrieval from Azure cloud storage
 - **Hybrid Search**: Combine vector similarity with graph traversal for superior results
+- **Real-Time WebSocket API**: Streaming document ingestion and query execution with live progress updates
+- **Topic Subscriptions**: Event-driven architecture with pub/sub capabilities
 
 ## Architecture
 
@@ -251,6 +253,74 @@ Delete a document and all its associated data.
 curl -X DELETE "http://localhost:8000/api/v1/graph-rag/documents/abc123..."
 ```
 
+## WebSocket API
+
+For real-time streaming of document ingestion and query execution, use the WebSocket API.
+
+### Connection
+
+```javascript
+const ws = new WebSocket('ws://localhost:8000/api/v1/ws?client_id=my-client');
+```
+
+### Features
+
+- **Streaming Ingestion**: Real-time progress updates during document processing
+- **Streaming Queries**: Results delivered as they arrive
+- **Topic Subscriptions**: Subscribe to specific event channels
+- **Bidirectional Communication**: Full duplex communication
+
+### Example: Streaming Ingestion
+
+```javascript
+// Send ingestion request
+ws.send(JSON.stringify({
+    type: 'ingest_request',
+    request_id: 'req-123',
+    file_url: 'https://storage.blob.core.windows.net/docs/sample.pdf',
+    metadata: {title: 'Sample Doc'},
+    stream_progress: true
+}));
+
+// Receive progress updates
+ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.type === 'ingestion_progress') {
+        console.log(`Progress: ${msg.progress}% - ${msg.stage}`);
+    }
+};
+```
+
+### Example: Streaming Query
+
+```javascript
+// Send query request
+ws.send(JSON.stringify({
+    type: 'query_request',
+    request_id: 'req-456',
+    query: 'What are the main conclusions?',
+    top_k: 10,
+    stream_results: true
+}));
+
+// Receive results as they arrive
+ws.onmessage = (event) => {
+    const msg = JSON.parse(event.data);
+    if (msg.type === 'query_chunk') {
+        console.log(`Result ${msg.chunk_index}:`, msg.result);
+    }
+};
+```
+
+### Documentation
+
+For complete WebSocket API documentation, see [WEBSOCKET.md](WEBSOCKET.md)
+
+### Examples
+
+- **Python Client**: `examples/websocket_client.py`
+- **Web Client**: `examples/websocket_client.html`
+
 ## API Documentation
 
 Once the application is running, visit:
@@ -267,6 +337,7 @@ stealth/
 │   │   └── v1/
 │   │       ├── endpoints/
 │   │       │   ├── graph_rag.py    # Graph RAG endpoints
+│   │       │   ├── websocket.py    # WebSocket endpoints
 │   │       │   └── user.py         # User endpoints
 │   │       └── router.py           # API router
 │   ├── core/
@@ -281,13 +352,22 @@ stealth/
 │   │   ├── graph_store.py          # Neo4j integration
 │   │   ├── graph_rag_ingestion.py  # Ingestion pipeline
 │   │   └── graph_rag_query.py      # Query engine
+│   ├── websocket/
+│   │   ├── connection_manager.py   # WebSocket connection manager
+│   │   ├── schemas.py              # WebSocket message schemas
+│   │   └── handlers.py             # WebSocket message handlers
 │   ├── config.py                   # Configuration management
 │   └── main.py                     # FastAPI application
+├── examples/
+│   ├── websocket_client.py         # Python WebSocket client
+│   ├── websocket_client.html       # Web-based WebSocket client
+│   └── ...                         # Other examples
 ├── requirements.txt                # Python dependencies
 ├── .env.example                    # Environment variables template
 ├── Dockerfile                      # Docker configuration
 ├── docker-compose.yml              # Docker Compose setup
-└── README.md                       # This file
+├── README.md                       # This file
+└── WEBSOCKET.md                    # WebSocket API documentation
 ```
 
 ## How It Works
