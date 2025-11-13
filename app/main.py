@@ -55,11 +55,21 @@ app.include_router(
 # Health check endpoint
 @app.get("/health", tags=["Health"])
 async def health_check():
-    """Detailed health check"""
+    """Detailed health check with actual service status"""
+    services = getattr(app.state, "services_health", {})
+
+    # Determine overall status
+    all_healthy = all(services.values()) if services else False
+    overall_status = "healthy" if all_healthy else "degraded"
+
     return {
-        "status": "healthy",
-        "database": "connected",  # Add actual checks
-        "redis": "connected"
+        "status": overall_status,
+        "services": {
+            "neo4j": "connected" if services.get("neo4j", False) else "disconnected",
+            "pinecone": "connected" if services.get("pinecone", False) else "disconnected",
+        },
+        "environment": settings.ENVIRONMENT,
+        "version": settings.VERSION
     }
 
 

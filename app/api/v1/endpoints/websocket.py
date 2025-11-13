@@ -1,6 +1,7 @@
 """WebSocket API endpoints for real-time communication."""
 import logging
 import uuid
+import asyncio
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query
 from typing import Optional
 
@@ -95,10 +96,9 @@ async def websocket_endpoint(
 
                 # Route message to appropriate handler
                 if message.type == WSMessageType.QUERY_REQUEST:
-                    # Handle query request
+                    # Handle query request asynchronously
                     query_msg: WSQueryRequest = message
-                    import asyncio
-                    asyncio.create_task(
+                    task = asyncio.create_task(
                         handle_query_request(
                             connection_id=connection_id,
                             query=query_msg.query,
@@ -107,6 +107,11 @@ async def websocket_endpoint(
                             stream_results=query_msg.stream_results,
                             request_id=request_id
                         )
+                    )
+                    # Add error callback to log task exceptions
+                    task.add_done_callback(
+                        lambda t: logger.error(f"Query task error: {t.exception()}")
+                        if t.exception() else None
                     )
 
                 elif message.type == WSMessageType.SUBSCRIBE:

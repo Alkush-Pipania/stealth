@@ -9,25 +9,12 @@ class DocumentIngestRequest(BaseModel):
 
     file_url: str = Field(
         ...,
-        description="URL or path to the document in Azure Blob Storage",
-        examples=["https://storage.azure.com/container/document.pdf"]
+        description="URL or path to the document in Azure Blob Storage"
     )
     metadata: Optional[Dict[str, Any]] = Field(
         default={},
         description="Optional metadata about the document"
     )
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "file_url": "https://mystorageaccount.blob.core.windows.net/documents/sample.pdf",
-                "metadata": {
-                    "author": "John Doe",
-                    "category": "research",
-                    "tags": ["AI", "ML"]
-                }
-            }
-        }
 
 
 class DocumentIngestResponse(BaseModel):
@@ -52,8 +39,7 @@ class QueryRequest(BaseModel):
     query: str = Field(
         ...,
         description="User query text",
-        min_length=1,
-        examples=["What are the key findings about climate change?"]
+        min_length=1
     )
     top_k: int = Field(
         default=10,
@@ -75,17 +61,6 @@ class QueryRequest(BaseModel):
         ge=1,
         le=5
     )
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "query": "What are the main conclusions about artificial intelligence?",
-                "top_k": 10,
-                "namespace": "",
-                "use_graph": True,
-                "graph_depth": 2
-            }
-        }
 
 
 class ContextChunk(BaseModel):
@@ -149,15 +124,6 @@ class HybridSearchRequest(BaseModel):
         ge=1,
         le=100
     )
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "query": "machine learning applications",
-                "filters": {"category": "research"},
-                "top_k": 10
-            }
-        }
 
 
 class HybridSearchResponse(BaseModel):
