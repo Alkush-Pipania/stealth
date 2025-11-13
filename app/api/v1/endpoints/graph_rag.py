@@ -259,39 +259,3 @@ async def get_stats():
             status_code=500,
             detail=f"Failed to get stats: {str(e)}"
         )
-
-
-@router.delete(
-    "/documents/{document_id}",
-    status_code=200,
-    summary="Delete a document",
-    description="Delete a document and all its associated data from the system"
-)
-async def delete_document(document_id: str):
-    """Delete a document from the system."""
-    try:
-        logger.info(f"Deleting document: {document_id}")
-
-        # Delete from Pinecone
-        try:
-            vector_store = get_vector_store_service()
-            vector_store.delete_vectors(namespace=document_id, delete_all=True)
-            logger.info(f"Deleted vectors for document: {document_id}")
-        except Exception as e:
-            logger.error(f"Failed to delete vectors: {e}")
-
-        # Note: Deleting from Neo4j would require additional implementation
-        # in the graph_store service
-
-        return {
-            "status": "success",
-            "message": f"Document {document_id} deleted successfully",
-            "document_id": document_id
-        }
-
-    except Exception as e:
-        logger.error(f"Error deleting document: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail=f"Failed to delete document: {str(e)}"
-        )

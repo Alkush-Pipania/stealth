@@ -243,16 +243,6 @@ Get statistics about the Graph RAG system.
 curl -X GET "http://localhost:8000/api/v1/graph-rag/stats"
 ```
 
-### Delete Document
-
-**DELETE** `/api/v1/graph-rag/documents/{document_id}`
-
-Delete a document and all its associated data.
-
-```bash
-curl -X DELETE "http://localhost:8000/api/v1/graph-rag/documents/abc123..."
-```
-
 ## WebSocket API
 
 For real-time streaming of document ingestion and query execution, use the WebSocket API.
