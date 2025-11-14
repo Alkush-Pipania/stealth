@@ -25,8 +25,8 @@ class Settings(BaseSettings):
     INDEX: str
     
     # Embedding Configuration (Gemini)
-    EMBEDDING_MODEL: str = "models/embedding-001"  # Gemini embedding model
-    EMBEDDING_DIM: int = 3072  # Gemini embedding dimension (supports 128-3072)
+    EMBEDDING_MODEL: str = "models/gemini-embedding-001"  # Gemini embedding with MRL support
+    EMBEDDING_DIM: int = 3072  # gemini-embedding-001 supports 768, 1536, or 3072 dimensions (default 3072)
     
     # Chunking Configuration
     CHUNK_SIZE: int = 1000

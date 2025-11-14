@@ -47,9 +47,8 @@ websockets==15.0.1
 # Graph RAG Pipeline Dependencies
 llama-parse==0.5.9
 llama-index-core==0.12.5
-langchain-google-genai==2.0.8
+google-genai
 langchain-core==0.3.37
 pinecone-client==5.0.1
 neo4j==5.28.0
-Pillow>=10.0.0
 langchain==0.3.13

@@ -6,7 +6,7 @@ from app.services.embed.embed_service import get_embed_service
 
 router = APIRouter()
 
-@router.post("/embed", response_model=EmbedResponse)
+@router.post("/", response_model=EmbedResponse)
 async def embed_text(
     request: EmbedRequest,
     service = Depends(get_embed_service)

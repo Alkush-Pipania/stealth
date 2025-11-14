@@ -5,9 +5,7 @@ from typing import Optional
 from io import BytesIO
 
 from app.config import get_settings
-from app.utils.logger import setup_logger
 
-logger = setup_logger(__name__)
 settings = get_settings()
 
 
@@ -29,7 +27,7 @@ class AzureBlobDownloader:
             Path to the downloaded file
         """
         try:
-            logger.info(f"Downloading from URL: {azure_url}")
+            print(f"Downloading from URL: {azure_url}")
             
             # Fetch PDF from Azure Blob URL directly (just like your working code!)
             response = requests.get(azure_url, timeout=120)
@@ -58,11 +56,11 @@ class AzureBlobDownloader:
             with open(download_path, "wb") as download_file:
                 download_file.write(response.content)
             
-            logger.info(f"Successfully downloaded to: {download_path}")
+            print(f"Successfully downloaded to: {download_path}")
             return download_path
             
         except Exception as e:
-            logger.error(f"Error downloading from Azure: {str(e)}")
+            print(f"Error downloading from Azure: {str(e)}")
             raise
     
 
